@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FitFlow Tracker</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --card-bg: #1c1c1e;
+      --card-border: #2c2c2e;
+      --accent: #0a84ff;
+      --accent-green: #30d158;
+      --accent-gold: #ffd60a;
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    input, select {
+      flex: 1;
+      background: #2c2c2e;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      padding: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+
+    .btn:active {
+      opacity: 0.7;
+    }
+
+    .btn-secondary {
+      background: #2c2c2e;
+      color: var(--accent);
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stat-box {
+      background: #2c2c2e;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Calendar Styling */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .cal-day-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding-bottom: 4px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      border-radius: 50%;
+      background: #2c2c2e;
+      color: var(--text);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cal-day.active-day {
+      border: 1px solid var(--accent);
+    }
+
+    .cal-day.attended {
+      background: var(--accent-green);
+      color: black;
+      font-weight: 700;
+    }
+
+    .cal-day.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    /* Routine Exercise Pills */
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .exercise-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2c2c2e;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: border 0.2s;
+    }
+
+    .exercise-item:active {
+      border-color: var(--accent);
+    }
+
+    .exercise-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .exercise-target {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Workout Log List */
+    .log-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .log-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2c2c2e;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    .log-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-title {
+      font-weight: 600;
+    }
+
+    .log-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge-pr {
+      background: var(--accent-gold);
+      color: black;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>FitFlow Tracker</h1>
+      <p class="subtitle">Attendance & Set Progression Tracker</p>
+    </header>
+
+    <!-- Workout Summary Banner -->
+    <div class="card">
+      <p class="subtitle">Daily Overview (<span id="currentDateDisplay">Today</span>)</p>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="statSets">0</div>
+          <div class="stat-lbl">Sets Completed</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statReps">0</div>
+          <div class="stat-lbl">Total Reps</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statVolume">0 kg</div>
+          <div class="stat-lbl">Volume Lifted</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gym Attendance Calendar Card -->
+    <div class="card">
+      <div class="calendar-header">
+        <button class="btn-secondary" onclick="changeMonth(-1)">‹ Prev</button>
+        <span style="font-weight: 700; font-size: 16px;" id="calendarMonthYear">Month 2026</span>
+        <button class="btn-secondary" onclick="changeMonth(1)">Next ›</button>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Calendar auto-renders here -->
+      </div>
+    </div>
+
+    <!-- Routine Selection Card -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <p class="subtitle">Select Routine Day</p>
+        <button class="btn-secondary" id="variationToggleBtn" onclick="toggleVariation()">Variation: Classic</button>
+      </div>
+
+      <div class="input-group">
+        <select id="daySelect" onchange="loadSelectedRoutine()">
+          <option value="monday">Monday: Chest & Triceps</option>
+          <option value="tuesday">Tuesday: Back & Biceps</option>
+          <option value="wednesday">Wednesday: Leg Day (Quad focus)</option>
+          <option value="thursday">Thursday: Shoulders</option>
+          <option value="friday">Friday: Leg Day (Hamstring & Glute focus)</option>
+        </select>
+      </div>
+
+      <p class="subtitle" style="margin-top: 12px; font-size: 12px;">Tap any exercise to load into tracker:</p>
+      
+      <div class="exercise-list" id="routineExerciseList">
+        <!-- Exercises auto-populate here -->
+      </div>
+    </div>
+
+    <!-- Log Exercise Card -->
+    <div class="card">
+      <p class="subtitle">Log Completed Set</p>
+      <div style="margin-top: 8px;">
+        <input type="text" id="exerciseName" placeholder="Exercise Name" style="width: 100%;">
+      </div>
+      <div class="input-group">
+        <input type="number" id="weight" placeholder="Weight (kg)">
+        <input type="number" id="reps" placeholder="Reps">
+      </div>
+      <button class="btn" style="margin-top: 12px;" onclick="addSet()">Log Set</button>
+    </div>
+
+    <!-- History List -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <p class="subtitle" id="logListTitle">Logged Sets</p>
+        <button class="btn-secondary" style="color: #ff453a;" onclick="clearLogForSelectedDate()">Clear Selected Day</button>
+      </div>
+      <div class="log-list" id="logList">
+        <!-- Logged items appear here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isAlternativeMode = false;
+    let currentDate = new Date();
+    let selectedDateStr = getFormattedDateKey(new Date());
+    let historyData = JSON.parse(localStorage.getItem('gym_history_v2')) || {};
+
+    const routines = {
+      classic: {
+        monday: [
+          { name: "Barbell Bench Press", target: "3-4 sets × 8-10 reps" },
+          { name: "Incline Dumbbell Press", target: "3 sets × 10-12 reps" },
+          { name: "Cable Chest Flyes", target: "3 sets × 12-15 reps" },
+          { name: "Tricep Rope Pushdowns", target: "3 sets × 12-15 reps" },
+          { name: "Overhead Tricep Extension", target: "3 sets × 10-12 reps" }
+        ],
+        tuesday: [
+          { name: "Lat Pulldown / Pull-ups", target: "4 sets × 8-10 reps" },
+          { name: "Bent-Over Barbell Row", target: "3 sets × 8-10 reps" },
+          { name: "Seated Cable Row", target: "3 sets × 10-12 reps" },
+          { name: "Barbell Bicep Curls", target: "3 sets × 10-12 reps" },
+          { name: "Incline Hammer Curls", target: "3 sets × 12 reps" }
+        ],
+        wednesday: [
+          { name: "Barbell Back Squats", target: "4 sets × 6-8 reps" },
+          { name: "Leg Press", target: "3 sets × 10-12 reps" },
+          { name: "Leg Extensions", target: "3 sets × 12-15 reps" },
+          { name: "Standing Calf Raises", target: "4 sets × 15 reps" }
+        ],
+        thursday: [
+          { name: "Overhead Dumbbell Press", target: "4 sets × 8-10 reps" },
+          { name: "Dumbbell Lateral Raises", target: "4 sets × 12-15 reps" },
+          { name: "Face Pulls", target: "3 sets × 15 reps" },
+          { name: "Dumbbell Front Raises", target: "3 sets × 12 reps" }
+        ],
+        friday: [
+          { name: "Romanian Deadlifts (RDL)", target: "4 sets × 8-10 reps" },
+          { name: "Lying Leg Curls", target: "3 sets × 10-12 reps" },
+          { name: "Hip Thrusts / Glute Bridges", target: "3 sets × 10-12 reps" },
+          { name: "Seated Calf Raises", target: "4 sets × 15 reps" }
+        ]
+      },
+      alternative: {
+        monday: [
+          { name: "Dumbbell Bench Press", target: "4 sets × 10 reps" },
+          { name: "Dips (Weighted or Bodyweight)", target: "3 sets × 10-12 reps" },
+          { name: "Low-to-High Cable Flyes", target: "3 sets × 12 reps" },
+          { name: "Skull Crushers (EZ Bar)", target: "3 sets × 10 reps" },
+          { name: "Single-Arm Cable Kickbacks", target: "3 sets × 12-15 reps" }
+        ],
+        tuesday: [
+          { name: "Single-Arm Dumbbell Rows", target: "3 sets × 10-12 reps" },
+          { name: "Neutral Grip Pulldowns", target: "3 sets × 10-12 reps" },
+          { name: "Face Pulls", target: "3 sets × 15 reps" },
+          { name: "Preacher Curls", target: "3 sets × 10 reps" },
+          { name: "Cable Bayesian Curls", target: "3 sets × 12-15 reps" }
+        ],
+        wednesday: [
+          { name: "Front Squats / Goblet Squats", target: "4 sets × 8-10 reps" },
+          { name: "Bulgarian Split Squats", target: "3 sets × 10 reps / leg" },
+          { name: "Sissy Squats or Machine Extensions", target: "3 sets × 15 reps" },
+          { name: "Seated Calf Raises", target: "4 sets × 15 reps" }
+        ],
+        thursday: [
+          { name: "Military Barbell Press", target: "4 sets × 6-8 reps" },
+          { name: "Cable Lateral Raises", target: "4 sets × 12-15 reps" },
+          { name: "Reverse Cable Flyes", target: "3 sets × 12-15 reps" },
+          { name: "Dumbbell Shrugs", target: "3 sets × 12 reps" }
+        ],
+        friday: [
+          { name: "Conventional Deadlifts", target: "3 sets × 5 reps" },
+          { name: "Walking Lunges", target: "3 sets × 12 steps / leg" },
+          { name: "Single-Leg Hamstring Curls", target: "3 sets × 12 reps" },
+          { name: "Standing Calf Raises", target: "4 sets × 15 reps" }
+        ]
+      }
+    };
+
+    // Auto-select current day of week
+    const dayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const todayIndex = new Date().getDay();
+    const currentDay = (todayIndex === 0 || todayIndex === 6) ? "monday" : dayMap[todayIndex];
+    document.getElementById('daySelect').value = currentDay;
+
+    // Initial render
+    loadSelectedRoutine();
+    renderCalendar();
+    renderDayLog();
+
+    function getFormattedDateKey(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function loadSelectedRoutine() {
+      const selectedDay = document.getElementById('daySelect').value;
+      const mode = isAlternativeMode ? 'alternative' : 'classic';
+      const exerciseListContainer = document.getElementById('routineExerciseList');
+      const exercises = routines[mode][selectedDay] || [];
+
+      exerciseListContainer.innerHTML = exercises.map(ex => `
+        <div class="exercise-item" onclick="selectExercise('${ex.name}')">
+          <span class="exercise-name">${ex.name}</span>
+          <span class="exercise-target">${ex.target}</span>
+        </div>
+      `).join('');
+    }
+
+    function toggleVariation() {
+      isAlternativeMode = !isAlternativeMode;
+      document.getElementById('variationToggleBtn').innerText = isAlternativeMode ? 'Variation: Alt Heavy' : 'Variation: Classic';
+      loadSelectedRoutine();
+    }
+
+    function selectExercise(name) {
+      document.getElementById('exerciseName').value = name;
+      document.getElementById('weight').focus();
+    }
+
+    function addSet() {
+      const name = document.getElementById('exerciseName').value.trim();
+      const weight = parseFloat(document.getElementById('weight').value);
+      const reps = parseInt(document.getElementById('reps').value);
+
+      if (!name || isNaN(weight) || isNaN(reps)) {
+        alert('Please complete exercise name, valid weight, and reps!');
+        return;
+      }
+
+      if (!historyData[selectedDateStr]) {
+        historyData[selectedDateStr] = [];
+      }
+
+      // Calculate estimated 1-Rep Max (1RM)
+      const est1RM = Math.round(weight * (1 + reps / 30));
+      const isPR = checkIsPR(name, weight);
+
+      const newSet = {
+        id: Date.now(),
+        name: name,
+        weight: weight,
+        reps: reps,
+        est1RM: est1RM,
+        isPR: isPR,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      historyData[selectedDateStr].unshift(newSet);
+      saveData();
+      
+      // Reset inputs
+      document.getElementById('weight').value = '';
+      document.getElementById('reps').value = '';
+
+      renderDayLog();
+      renderCalendar();
+    }
+
+    function checkIsPR(exerciseName, currentWeight) {
+      let maxPrevious = 0;
+      Object.values(historyData).forEach(daySets => {
+        daySets.forEach(s => {
+          if (s.name.toLowerCase() === exerciseName.toLowerCase() && s.weight > maxPrevious) {
+            maxPrevious = s.weight;
+          }
+        });
+      });
+      return currentWeight > maxPrevious;
+    }
+
+    function renderDayLog() {
+      const list = document.getElementById('logList');
+      const daySets = historyData[selectedDateStr] || [];
+
+      document.getElementById('currentDateDisplay').innerText = selectedDateStr;
+      document.getElementById('logListTitle').innerText = `Logged Sets (${selectedDateStr})`;
+
+      // Compute statistics
+      let totalSets = daySets.length;
+      let totalReps = 0;
+      let totalVolume = 0;
+
+      daySets.forEach(s => {
+        totalReps += parseInt(s.reps);
+        totalVolume += parseFloat(s.weight) * parseInt(s.reps);
+      });
+
+      document.getElementById('statSets').innerText = totalSets;
+      document.getElementById('statReps').innerText = totalReps;
+      document.getElementById('statVolume').innerText = `${totalVolume.toLocaleString()} kg`;
+
+      if (daySets.length === 0) {
+        list.innerHTML = '<p style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 8px;">No sets recorded for this day.</p>';
+        return;
+      }
+
+      list.innerHTML = daySets.map(s => `
+        <div class="log-item">
+          <div class="log-details">
+            <span class="log-title">
+              ${s.name} ${s.isPR ? '<span class="badge-pr">PR</span>' : ''}
+            </span>
+            <span class="log-sub">Est. 1RM: ${s.est1RM} kg • ${s.time}</span>
+          </div>
+          <div>
+            <strong>${s.weight} kg</strong> × <strong>${s.reps} reps</strong>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function clearLogForSelectedDate() {
+      if (confirm(`Are you sure you want to clear sets logged for ${selectedDateStr}?`)) {
+        delete historyData[selectedDateStr];
+        saveData();
+        renderDayLog();
+        renderCalendar();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('gym_history_v2', JSON.stringify(historyData));
+    }
+
+    /* Calendar Functions */
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('calendarMonthYear').innerText = `${monthNames[month]} ${year}`;
+
+      const calendarGrid = document.getElementById('calendarGrid');
+      calendarGrid.innerHTML = '';
+
+      // Day labels header
+      const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+      dayLabels.forEach(lbl => {
+        const div = document.createElement('div');
+        div.className = 'cal-day-label';
+        div.innerText = lbl;
+        calendarGrid.appendChild(div);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Empty lead slots
+      for (let i = 0; i < firstDay; i++) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'cal-day empty';
+        calendarGrid.appendChild(emptyDiv);
+      }
+
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement('div');
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        const hasWorkout = historyData[dateKey] && historyData[dateKey].length > 0;
+        const isSelected = dateKey === selectedDateStr;
+
+        dayDiv.className = `cal-day ${hasWorkout ? 'attended' : ''} ${isSelected ? 'active-day' : ''}`;
+        dayDiv.innerText = day;
+
+        dayDiv.onclick = () => {
+          selectedDateStr = dateKey;
+          renderCalendar();
+          renderDayLog();
+        };
+
+        calendarGrid.appendChild(dayDiv);
+      }
+    }
+  </script>
+</body>
+</html>
